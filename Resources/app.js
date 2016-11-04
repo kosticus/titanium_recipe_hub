@@ -16,7 +16,7 @@ if (Util.isTablet()) {
 	// check if the device is ios, android or mobile web
 	ApplicationWindow = require('ui/handheld/ApplicationWindow');
 	
-	if (Util.isPhone()) {
+	if (Util.isIPhone()) {
 		navInit = Ti.UI.iOS.createNavigationWindow;
 	} else if (Util.isAndroid()) {
 		navInit = false;

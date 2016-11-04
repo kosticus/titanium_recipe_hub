@@ -22,7 +22,7 @@ var RatingView = function(options, rating) {
 	var reloadRating = function(newRating) {
 		// check if the rating has been loaded yet, if it has
 		// remove the old stars
-		if (self.getChilren().length > 0) {
+		if (self.getChildren().length > 0) {
 			self.removeAllChildren();
 		}
 		

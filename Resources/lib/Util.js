@@ -28,7 +28,7 @@ var Util = {
 	 */
 	isTablet: function() {
 		var platform = Ti.Platform.osname;
-		var isTable = false;
+		var isTablet = false;
 		switch (platform) {
 			case 'ipad':
 				isTablet = true;
