@@ -37,7 +37,7 @@ function MenuView(menuClickEvent) {
 			e.cancelBubble = true;
 			var eventObj = {
 				row: row,
-				title: this.getTitle();
+				title: this.getTitle(),
 			};
 			// click event if the device is android
 			if (menuClickEvent) {
