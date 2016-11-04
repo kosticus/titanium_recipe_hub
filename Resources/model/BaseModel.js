@@ -16,9 +16,10 @@ var BaseModel = function(path) {
  * 
  * @param {Object} data
  * @param {Function} callback
+ * @param {UserModel} auth
  */
-BaseModel.prototype.POST = function(data, callback) {
-	this.httpService.httpRequest('POST', this.httpService.url + this.path, data, callback);
+BaseModel.prototype.POST = function(data, callback, auth) {
+	this.httpService.httpRequest('POST', this.httpService.url + this.path, data, callback, auth);
 };
 
 /**
@@ -27,8 +28,9 @@ BaseModel.prototype.POST = function(data, callback) {
  * 
  * @param {Object|String} data, can be an object or a querystring
  * @param {Function} callback
+ * @param {UserModel} auth
  */
-BaseModel.prototype.GET = function(data, callback) {
+BaseModel.prototype.GET = function(data, callback, auth) {
 	data = data || {};
 	var querystring;
 	if (Util._.isObject(data)) {
@@ -51,8 +53,9 @@ BaseModel.prototype.GET = function(data, callback) {
  * 
  * @param {Object|String} data, an be an object or a querystring
  * @param {Function} callback
+ * @param {UserModel} auth
  */
-BaseModel.prototype.PUT = function(data, callback) {
+BaseModel.prototype.PUT = function(data, callback, auth) {
 	this.httpService.httpRequest('PUT', this.httpService.url + this.path, data, callback);
 };
 
