@@ -59,7 +59,7 @@ function RecipeTableView(recipes, rowClickEvent, bottomEvent) {
 		color: '#576c89',
 		font: { fontSize: 13, fontWeight: 'bold', },
 		height: 'auto',
-		left: ;55,
+		left: 55,
 		shadowColor: '#999',
 		shadowOffset: { x: 0, y: 1 },
 		text: 'Pull to reload',
@@ -120,7 +120,7 @@ function RecipeTableView(recipes, rowClickEvent, bottomEvent) {
 		reloading = false;
 		// update the text with a timestamp of when it was last updated
 		lastUpdatedLabel.text = 'Last Updated: ' + Util.formatDate();
-		statusLabel.text = 'Pull down to refresh. . .';
+		statusLabel.text = 'Pull down to refresh...';
 		
 		// hide the activity indicator
 		actIndicator.hide();
@@ -129,9 +129,186 @@ function RecipeTableView(recipes, rowClickEvent, bottomEvent) {
 	};
 	
 	
+	/**
+	 * Check if the table view is at the bottom
+	 * 
+	 * @param {Object} e
+	 */
+	function isBottomOfTable(e) {
+		if (self._lock) {
+			return false;
+		}
+		
+		if (Util.isAndroid()) {
+			Ti.API.info('e.firstVisibleItem: ' + e.firstVisibleItem);
+			Ti.API.info('e.totalItemCount: ' + e.totalItemCount);
+			Ti.API.info('e.visibleItemCount: ' + e.visibleItemCount);
+			
+			return (e.firstVisibleItem + e.visibleItemCount === e.totalItemCount);
+		} else {
+			var contentHeight = e.contentOffset.y + e.size.height;
+			if (contentHeight > e.contentSize.height) {
+				return true;
+			}
+		}
+		return false;
+	};
+	
+	/**
+	 * Event listener for scrolling on the table view
+	 */
+	self.addEventListener('scroll', function(e) {
+		// Check if we have reached the bottom of the table view
+		if (isBottomOfTable(e)) {
+			self._lock = true;
+			var obj = {
+				recipes: recipes,
+				rows: self.getData(),
+			};
+			
+			if (bottomEvent) {
+				bottomEvent(obj);
+				return;
+			}
+			self.fireEvent('RecipeTableView:bottom', obj);
+			return;
+		}
+		
+		// The following will be used for the pull/reloading table feature
+		// note: this code was taken from the KitchenSink app
+		
+		if (!e.contentOffset) {
+			return;
+		}
+		
+		var offset = e.contentOffset.y;
+		if (offset <= -65.0 && !pulling & !reloading) {
+			var t = Ti.UI.create2DMatrix();
+			t = t.rotate(-180);
+			pulling = true;
+			arrow.animate({ transform: t, duration: 180 });
+			statusLabel.text = 'Release to refresh...';
+		} else if (pulling && (offset > - 65.0 && offset < 0) && !reloading) {
+			pulling = false;
+			var t = Ti.UI.create2DMatrix();
+			arrow.animate({ transform: t, duration: 180 });
+			statusLabel.text = 'Pull down to refresh...';
+		}
+	});
+	
+	// the event name was changed so check the version of titanium studio
+	// technically, since you are most likely using 3.4 or greater, you can just
+	// use the dragend
+	var event1 = 'dragEnd';
+	if (Ti.version >= '3.0.0') {
+		event1 = 'dragend';
+	}
+	
+	// handles the event listener for the dragend
+	self.addEventListener(event1, function(e) {
+		// if the offset was enough to signify a 'pulling' request and the table
+		// is not already reloading, then we will begin the reloading process
+		if (pulling && !reloading) {
+			reloading = true;
+			pulling = false;
+			arrow.hide();
+			actIndicator.show();
+			statusLabel.text = 'Reloading...';
+			self.setContentInsets({ top: 60 }, { animated: true });
+			arrow.transform = Ti.UI.create2DMatrix();
+			beginReloading();
+		}
+	});
+	
+	/**
+	 * Loads the table view with data
+	 * 
+	 * @param {Array<RecipeModel>} data 
+	 */
+	function loadTableData(data) {
+		if (!data) {
+			data = recipes;
+		}
+		
+		// table view rows
+		var rows = [];
+		// create a table row for each recipemodel object
+		for (var i = 0; i < data.length; i++) {
+			var recipe = data[i];
+			var row = Ti.UI.createTableViewRow({});
+			// store the recipe value
+			row._recipe = recipe;
+			// store the index of the row
+			row.index = i;
+			// add the recipe details view to the row
+			row.add(new RecipeDetailsView(recipe));
+			// add a click event
+			row.addEventListener('click', function(e) {
+				e.cancelBubble = true;
+				if (rowClickEvent) {
+					rowClickEvent({ recipe: this._recipe });
+					return;
+				}
+				
+				self.fireEvent('RecipeTableViewRow:clickEvent', { recipe: this._recipe });
+			});
+			// add row to the array
+			rows.push(row);
+		}
+		return rows;
+	};
+	
+	/**
+	 * 
+	 * Add recipes to existing recipe data
+	 * 
+	 * @param {Array<RecipeModel>} data
+	 * @param {Boolean} isEnd, signifies there are no more rows to be added
+	 */
+	self._addRecipes = function(data, isEnd) {
+		dataLoading = false;
+		// get the sections, which will only be one
+		var sections = self.getData();
+		// if no sections are found then return, table was empty
+		if (!sections || sections.length === 0) {
+			return;
+		}
+		
+		// get rows from existing section
+		var rows = sections[0].getRows();
+		// create new rows
+		var newRows = loadTableData(data);
+		// add new rows to the existing rows
+		rows = rows.concat(newRows);
+		
+		// set the table data
+		self.setData(rows);
+		
+		// unlock the table
+		if (isEnd === false) {
+			self._lock = false;
+		}
+	};
+	
+	// load the initial recipes
+	if (recipes && recipes.length > 0) {
+		loadTableData(recipes);
+	}
+	
+	/**
+	 * 
+	 * Replaces all data
+	 * 
+	 * @param {Array<RecipeModel>} data
+	 * @param {Object} callback
+	 */
+	self._reloadData = function(data, callback) {
+		recipes = data;
+		self.setData(loadTableData());
+		callback && callback();
+	};
+	
+	return self;
 }
 
-
-
-
-
+module.exports = RecipeTableView;
