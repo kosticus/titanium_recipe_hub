@@ -14,6 +14,8 @@
     <guid>d86b63a4-e187-4bd8-9888-f75382f33589</guid>
     <property name="ti.ui.defaultunit" type="string">dp</property>
     <property name="run-on-main-thread" type="bool">true</property>
+    <property name="url" type="string">http://www.recipehubapp.com/Services/</property>
+    <property name="search_limit" type="int">20</property>
     <ios>
         <enable-launch-screen-storyboard>true</enable-launch-screen-storyboard>
         <use-app-thinning>true</use-app-thinning>
@@ -25,8 +27,6 @@
                 </array>
                 <key>UISupportedInterfaceOrientations~ipad</key>
                 <array>
-                    <string>UIInterfaceOrientationPortrait</string>
-                    <string>UIInterfaceOrientationPortraitUpsideDown</string>
                     <string>UIInterfaceOrientationLandscapeLeft</string>
                     <string>UIInterfaceOrientationLandscapeRight</string>
                 </array>
