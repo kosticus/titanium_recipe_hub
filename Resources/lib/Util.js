@@ -30,7 +30,7 @@ var Util = {
 		var platform = Ti.Platform.osname;
 		var isTable = false;
 		switch (platform) {
-			case: 'ipad':
+			case 'ipad':
 				isTablet = true;
 			break;
 			case 'android':
