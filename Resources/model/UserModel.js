@@ -1,7 +1,7 @@
 
 var Util = require('lib/Util');
 var CryptoJS = require('lib/Crypto');
-var BaseModel = require('lib/BaseModel');
+var BaseModel = require('model/BaseModel');
 
 // Create the user model
 var UserModel = new BaseModel('User.php');

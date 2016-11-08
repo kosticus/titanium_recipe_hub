@@ -1,5 +1,5 @@
 var Util = require('lib/Util');
-var BaseModel = require('lib/BaseModel');
+var BaseModel = require('model/BaseModel');
 
 // create the category model that inherits from the BaseModel
 var RecipeModel = new BaseModel('Recipe.php');

@@ -1,4 +1,4 @@
-var Util = require('lib/Uitl');
+var Util = require('lib/Util');
 var BaseModel = require('model/BaseModel');
 
 // create the category model that inherits from the BaseModel
